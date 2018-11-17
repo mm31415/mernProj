@@ -24,19 +24,22 @@ const Todo = mongoose.model("Todo", todoSchema);
 
   Query is a read functionality
   Mutation is a write functionality
+
+  todos: [Todo] means it expects an array of Todos to be returned
 */
 const typeDefs = `
   type Query {
-    hello(name: String): String!,
+    hello(name: String): String!
     todos: [Todo]
   }
   type Todo {
-    id: ID!,
-    text: String!,
+    id: ID!
+    text: String!
     complete: Boolean!
   }
   type Mutation {
     createTodo(text: String!): Todo
+    updateTodo(id: ID!, complete: Boolean!): Boolean
   }
 `
 
@@ -52,15 +55,23 @@ const typeDefs = `
 const resolvers = {
   Query: {
     hello: (_, { name }) => `Hello ${name || 'World'}`,
+    // find() returns an array of all todos
     todos: () => Todo.find(),
   },
   Mutation: {
+    // this is a function that creates a todo
+    // save() returns a promise so await is used to wait before returning
     createTodo: async (_, { text }) => {
       const todo = new Todo({ text, complete: false });
       await todo.save();
       return todo;
-    }
-  }
+    },
+    updateTodo: async (_, { id, complete }) => {
+      // returns some type of Promise
+      await Todo.findByIdAndUpdate(id, { complete });
+      return true;
+    },
+  },
 }
 
 // specify the typeDefs (schema) and resolvers for the server
