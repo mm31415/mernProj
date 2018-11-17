@@ -40,6 +40,7 @@ const typeDefs = `
   type Mutation {
     createTodo(text: String!): Todo
     updateTodo(id: ID!, complete: Boolean!): Boolean
+    removeTodo(id: ID!): Boolean
   }
 `
 
@@ -71,7 +72,11 @@ const resolvers = {
       await Todo.findByIdAndUpdate(id, { complete });
       return true;
     },
-  },
+    removeTodo: async (_, { id }) => {
+      await Todo.findByIdAndRemove(id);
+      return true;
+    },
+  }
 }
 
 // specify the typeDefs (schema) and resolvers for the server
